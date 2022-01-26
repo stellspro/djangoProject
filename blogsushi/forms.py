@@ -2,9 +2,11 @@ from django import forms
 from .models import Product, ProductCategory
 
 
-class AddFormPost(forms.Form):
-    title = forms.CharField(max_length=120, label='Заголовок')
-    content = forms.CharField(widget=forms.Textarea(attrs={'cols': 60, 'rows': 10}), label='Текст')
-    # image = forms.ImageField()
-    is_published = forms.BooleanField(label='Публикация')
-    category = forms.ModelChoiceField(queryset=ProductCategory.objects.all(), label='Категория' , empty_label='Категория не выбрана')
+class AddFormPost(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['category'].empty_label = 'Категория не выбрана'
+
+    class Meta:
+        model = Product
+        fields = ['title', 'content', 'is_published', 'image', 'category']

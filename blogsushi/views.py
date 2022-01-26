@@ -1,5 +1,5 @@
 from django.http import HttpResponseNotFound
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import render, HttpResponse, redirect
 from .models import Product, ProductCategory
 from .forms import AddFormPost
 
@@ -24,9 +24,10 @@ def index(request):
 
 def add_post(request):
     if request.method == 'POST':
-        form = AddFormPost(request.POST)
+        form = AddFormPost(request.POST, request.FILES)
         if form.is_valid():
-            print(form.cleaned_data)
+            form.save()
+            return redirect('home')
     else:
         form = AddFormPost()
     context = {
