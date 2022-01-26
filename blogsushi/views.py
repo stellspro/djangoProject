@@ -1,17 +1,41 @@
 from django.http import HttpResponseNotFound
 from django.shortcuts import render, HttpResponse
-from.models import Product, ProductCategory
-
+from .models import Product, ProductCategory
+from .forms import AddFormPost
 
 # Create your views here.
+menu = [{'name': 'Добавить статью', 'url': 'add_post'},
+        {'name': 'Обратная связь', 'url': '#'},
+        {'name': 'Войти', 'url': '#'}
+        ]
+
 
 def index(request):
-    name = Product.objects.get()
+    name = Product.objects.all()
+    category = ProductCategory.objects.all()
     context = {
         'title': 'Главная страница',
-        'name': name
+        'product': name,
+        'category': category,
+        'menu': menu
     }
     return render(request, 'blogsushi/index.html', context=context)
+
+
+def add_post(request):
+    if request.method == 'POST':
+        form = AddFormPost(request.POST)
+        if form.is_valid():
+            print(form.cleaned_data)
+    else:
+        form = AddFormPost()
+    context = {
+        'form': form,
+        'title': 'Добавить пост',
+
+    }
+
+    return render(request, 'blogsushi/addpost.html', context=context)
 
 
 def cats(request, number):

@@ -7,10 +7,41 @@
         {% block title %}{% endblock %}
     </title>
     <link type="text/css" rel="stylesheet" href="{% static 'blogsushi/css/style.css' %}">
+    <link type="text/css" rel="stylesheet" href="{% static 'blogsushi/css/bootstrap.css' %}">
 </head>
 <body>
-{% block content %}
-{% endblock %}
 
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="{% url 'home' %}">Главная страница</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    {% for m in menu %}
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="{{ m.url }}">{{ m.name }}</a>
+        </li>
+      </ul>
+    </div>
+     {% endfor %}
+  </div>
+</nav>
+<div class="container" style="padding-top: 30px">
+    <div class="row">
+        <div class="col-2">
+            <ul class="list-group">
+                {% for cat in category %}
+                    <li class="list-group-item">{{  cat.name  }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="col-8">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </div>
+</div>
 </body>
 </html>
