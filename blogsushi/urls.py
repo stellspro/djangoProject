@@ -1,8 +1,9 @@
 from django.urls import path
-from .views import index, cats, add_post
+from .views import cats, IndexProduct, PostDetail
 
 urlpatterns = [
-    path('', index, name='home'),
+    path('', IndexProduct.as_view(), name='home'),
     path('cats/<int:number>/', cats),
-    path('add_post/', add_post, name='add_post')
+    path('post/<int:post_id>/', PostDetail.as_view(), name='post'),
+    # path('add_post/', add_post, name='add_post')
 ]

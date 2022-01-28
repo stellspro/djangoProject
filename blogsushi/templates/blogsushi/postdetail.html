@@ -1,0 +1,10 @@
+{% extends 'blogsushi/base.html' %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+        <h1>{{ post.title }}</h1>
+        <h2>{{ post.content }}</h2>
+{% endblock %}
