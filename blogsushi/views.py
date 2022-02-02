@@ -1,55 +1,70 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseNotFound
 from django.shortcuts import render, HttpResponse, redirect
-from .models import Product, ProductCategory
+from django.urls import reverse_lazy
+from .utils import DataMixin
+from .models import Product
 from .forms import AddFormPost
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, CreateView
+
 
 # Create your views here.
-menu = [{'name': 'Добавить статью', 'url': 'add_post'},
-        {'name': 'Обратная связь', 'url': '#'},
-        {'name': 'Войти', 'url': '#'}
-        ]
-
-
-class IndexProduct(ListView):
+class IndexProduct(DataMixin, ListView):
     """Класс представления главной страницы"""
     model = Product
     template_name = 'blogsushi/index.html'
-    context_object_name = 'product'
+    context_object_name = 'posts'
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Главная страница'
-        context['menu'] = menu
-        return context
+        con = self.get_user_context(title='Главная страница')
+        return dict(list(context.items()) + list(con.items()))
+
+    def get_queryset(self):
+        return Product.objects.filter(is_published=True)
 
 
-class IndexProduct(ListView):
-    """Класс представления главной страницы"""
-    model = Product
-    template_name = 'blogsushi/index.html'
-    context_object_name = 'product'
-
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Главная страница'
-        context['menu'] = menu
-        context['category'] = ProductCategory.objects.all()
-        return context
-
-
-class PostDetail(DetailView):
+class PostDetail(DataMixin, DetailView):
     """Класс представления отдельного поста"""
     model = Product
     template_name = 'blogsushi/postdetail.html'
-    pk_url_kwarg = 'post_id'
+    slug_url_kwarg = 'post_slug'
     context_object_name = 'post'
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Главная страница'
-        context['menu'] = menu
-        context['category'] = ProductCategory.objects.all()
+        con = self.get_user_context(title=context['post'])
+        return context
+
+
+class ShowCategories(DataMixin, ListView):
+    model = Product
+    template_name = 'blogsushi/index.html'
+    context_object_name = 'posts'
+    allow_empty = True
+
+    def get_queryset(self):
+        return Product.objects.filter(category__slug=self.kwargs['category_slug'], is_published=True)
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(ShowCategories, self).get_context_data(**kwargs)
+        con = self.get_user_context(
+            title='Категория - ' + str(context['posts'][0].category),
+            cat_selected=context['posts'][0].category_id
+        )
+        return dict(list(context.items()) + list(con.items()))
+
+
+class AddPage(LoginRequiredMixin, DataMixin, CreateView):
+    form_class = AddFormPost
+    template_name = 'blogsushi/addpost.html'
+    success_url = reverse_lazy('home')
+    login_url = '/admin/'
+    # raise_exception = True
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        con = self.get_user_context(title='Добавить пост')
         return context
 
 
@@ -80,10 +95,6 @@ class PostDetail(DetailView):
 #     }
 #
 #     return render(request, 'blogsushi/addpost.html', context=context)
-
-
-def cats(request, number):
-    return HttpResponse(f'a{number}')
 
 
 def page_not_found(request, exсeption):

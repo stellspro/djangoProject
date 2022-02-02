@@ -1,9 +1,9 @@
 from django.urls import path
-from .views import cats, IndexProduct, PostDetail
+from .views import IndexProduct, PostDetail, ShowCategories, AddPage
 
 urlpatterns = [
     path('', IndexProduct.as_view(), name='home'),
-    path('cats/<int:number>/', cats),
-    path('post/<int:post_id>/', PostDetail.as_view(), name='post'),
-    # path('add_post/', add_post, name='add_post')
+    path('post/<slug:post_slug>/', PostDetail.as_view(), name='post'),
+    path('category/<slug:category_slug>', ShowCategories.as_view(), name='category'),
+    path('add_post/', AddPage.as_view(), name='add_post')
 ]

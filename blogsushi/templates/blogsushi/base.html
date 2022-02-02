@@ -1,4 +1,5 @@
 {% load static %}
+{% load categorytags %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -21,7 +22,7 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="{{ m.url }}">{{ m.name }}</a>
+          <a class="nav-link active" aria-current="page" href="{% url m.url_name %}">{{ m.name }}</a>
         </li>
       </ul>
     </div>
@@ -32,9 +33,12 @@
     <div class="row">
         <div class="col-2">
             <ul class="list-group">
-                {% for cat in category %}
-                    <li class="list-group-item"><a href="#">{{  cat.name  }}</a></li>
-                {% endfor %}
+                {% if cat_selected == 0 %}
+                <li class="selected">Все категории</li>
+                {% else %}
+                <li><a href="{% url 'home' %}">Все категории</a></li>
+                {% endif %}
+               {% show_categories cat_selected=cat_selected%}
             </ul>
         </div>
         <div class="col-8">

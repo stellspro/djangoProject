@@ -9,4 +9,4 @@ class AddFormPost(forms.ModelForm):
 
     class Meta:
         model = Product
-        fields = ['title', 'content', 'is_published', 'image', 'category']
+        fields = ['title', 'slug', 'content', 'is_published', 'image', 'category']
