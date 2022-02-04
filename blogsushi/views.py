@@ -1,10 +1,13 @@
+from django.contrib.auth import logout, login
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import LoginView
 from django.http import HttpResponseNotFound
 from django.shortcuts import render, HttpResponse, redirect
 from django.urls import reverse_lazy
 from .utils import DataMixin
 from .models import Product
-from .forms import AddFormPost
+from .forms import AddFormPost, FormUser
 from django.views.generic import ListView, DetailView, CreateView
 
 
@@ -38,6 +41,7 @@ class PostDetail(DataMixin, DetailView):
 
 
 class ShowCategories(DataMixin, ListView):
+    """Отображение категорий продуктов"""
     model = Product
     template_name = 'blogsushi/index.html'
     context_object_name = 'posts'
@@ -56,6 +60,7 @@ class ShowCategories(DataMixin, ListView):
 
 
 class AddPage(LoginRequiredMixin, DataMixin, CreateView):
+    """Страница добавление поста"""
     form_class = AddFormPost
     template_name = 'blogsushi/addpost.html'
     success_url = reverse_lazy('home')
@@ -65,7 +70,43 @@ class AddPage(LoginRequiredMixin, DataMixin, CreateView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         con = self.get_user_context(title='Добавить пост')
-        return context
+        return dict(list(context.items())+list(con.items()))
+
+
+class RegisterUser(DataMixin, CreateView):
+    form_class = FormUser
+    template_name = 'blogsushi/register.html'
+    success_url = reverse_lazy('home')
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        con = self.get_user_context(title='Регистрация')
+        return dict(list(context.items())+list(con.items()))
+
+    def form_valid(self, form):
+        user = form.save()
+        login(self.request, user)
+        return redirect('home')
+
+
+class LoginUser(DataMixin, LoginView):
+    form_class = AuthenticationForm
+    template_name = 'blogsushi/login.html'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        con = self.get_user_context(title='Авторизация')
+        return dict(list(context.items())+list(con.items()))
+
+    def get_success_url(self):
+        return reverse_lazy('home')
+
+
+def logout_user(request):
+    logout(request)
+    return redirect('login')
+
+
 
 
 # def index(request):

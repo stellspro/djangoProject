@@ -24,9 +24,15 @@
         <li class="nav-item">
           <a class="nav-link active" aria-current="page" href="{% url m.url_name %}">{{ m.name }}</a>
         </li>
+
       </ul>
     </div>
      {% endfor %}
+      {% if request.user.is_authenticated %}
+          <li class="nav-item"> {{ user.username }} | <a href="{% url 'logout' %}">Выйти</a></li>
+          {% else %}
+          <li class="nav-item"><a href="{% url 'register' %}">Регистрация</a> | <a href="{% url 'login' %}">Войти</a></li>
+          {% endif %}
   </div>
 </nav>
 <div class="container" style="padding-top: 30px">
@@ -44,6 +50,27 @@
         <div class="col-8">
             {% block content %}
             {% endblock %}
+        {% if page_obj.has_other_pages %}
+        <nav class="list-pages">
+            <ul>
+            {% if page_obj.has_previous %}
+                <li><a href="?page={{ page.obj.previous_page_number }}">&lt;</a></li>
+            {% endif %}
+                {% for p in paginator.page_range %}
+                    {% if page_obj.number == p  %}
+                        <li>{{ p }}</li>
+                    {% elif p >= page_obj.number|add:-2 and p <= page_obj.number|add:2 %}
+                    <li class="paginator">
+                        <a href="?page={{ p }}">{{ p }}</a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+            {% if page_obj.has_next %}
+                <li><a href="?page={{ page_obj.next_page_number }}"> > </a></li>
+            {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
         </div>
     </div>
 </div>
