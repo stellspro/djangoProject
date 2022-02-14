@@ -6,7 +6,7 @@ from django.http import HttpResponseNotFound
 from django.shortcuts import render, HttpResponse, redirect
 from django.urls import reverse_lazy
 from .utils import DataMixin
-from .models import Product
+from .models import Product, ProductCategory
 from .forms import AddFormPost, FormUser
 from django.views.generic import ListView, DetailView, CreateView
 
@@ -24,7 +24,7 @@ class IndexProduct(DataMixin, ListView):
         return dict(list(context.items()) + list(con.items()))
 
     def get_queryset(self):
-        return Product.objects.filter(is_published=True)
+        return Product.objects.filter(is_published=True).select_related('category')
 
 
 class PostDetail(DataMixin, DetailView):
@@ -52,9 +52,10 @@ class ShowCategories(DataMixin, ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(ShowCategories, self).get_context_data(**kwargs)
+        c = ProductCategory.objects.get(slug=self.kwargs['category_slug'])
         con = self.get_user_context(
-            title='Категория - ' + str(context['posts'][0].category),
-            cat_selected=context['posts'][0].category_id
+            title='Категория - ' + str(c.name),
+            cat_selected=c.pk
         )
         return dict(list(context.items()) + list(con.items()))
 

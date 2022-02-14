@@ -11,3 +11,4 @@ urlpatterns = [
     path('logout/', logout_user, name='logout')
 
 ]
+
